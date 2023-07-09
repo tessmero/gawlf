@@ -76,6 +76,21 @@ function draw(fps, t) {
     all_balls.forEach(b => b.draw(ctx) )
     playerBall.draw(ctx)
     
+    // aiming cursor
+    ctx.lineWidth = .005
+    //aimSeg.draw(ctx)
+    if( aimGeo ) drawAimIndicator()
+    
+    debugPoints.forEach(p => drawp(p,'red'))
+    debugEuclidSegs.forEach(abc => drawl(...abc))
+    
+    // clip outside of disk
+    ctx.beginPath();
+    ctx.arc(0,0,crad,0,twopi)
+    ctx.closePath();
+    ctx.globalCompositeOperation = 'destination-in';
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
     
     // draw reset button
     ctx.lineWidth = .004
@@ -92,22 +107,6 @@ function draw(fps, t) {
     if( hoverReset ){
         return
     }
-    
-    // aiming cursor
-    ctx.lineWidth = .005
-    //aimSeg.draw(ctx)
-    if( aimGeo ) drawAimIndicator()
-        
-    //var gints = circle_intersections(...geo, center, crad)
-    //gints.forEach( p => drawp( p, 'purple' ) )
-    
-    // draw lattice
-    //xLats.forEach( geo => drawc(...geo,'black') )
-    //yLats.forEach( geo => drawc(...geo,'black') )
-    
-    debugPoints.forEach(p => drawp(p,'red'))
-    //debugEuclidSegs.forEach(abc => drawl(...abc))
-    
     
     
     // Draw FPS on the screen
@@ -160,6 +159,7 @@ function drawAimIndicator(){
             }
             var laserSeg = b.getNextIntersection()
             if( !laserSeg ){
+                b.getPath().draw(ctx)
                 break
             }
             laserSeg.draw(ctx)

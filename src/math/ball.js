@@ -27,6 +27,15 @@ class Ball {
         return new Ball( geo, angle, speed )
     }
     
+    // get path segment assuming no obstacles
+    getPath(){
+        var start = this.geo.center.add( Vector.polar( this.angle, this.geo.radius) )
+        var end = this.geo.center.add( Vector.polar( this.angle+.9*pi*Math.sign(this.speed), this.geo.radius) )
+        var seg = GeoSegment.betweenPoints( start, end )
+        return seg
+    }
+    
+    
     // get path from current pos to next obstacle
     // return null if no obstacles
     getNextIntersection(debug=false){

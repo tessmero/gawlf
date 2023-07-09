@@ -17,6 +17,8 @@ function playerHitBall(){
 // also called on game start and level advancement
 function resetLevel(){
     playerBall = Ball.fromPosVel(startPos,v(2e-5,1e-5))
+    aimGeo = null
+    mousePos = null
 }
 
 // called when ball is contained in target
