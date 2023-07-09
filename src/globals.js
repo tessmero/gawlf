@@ -47,7 +47,7 @@ for( let i = 0 ; i < n ; i++ ) {
     all_walls.push( GeoSegment.betweenPoints( corners[i], corners[i+1] ) ) 
 }
 
-var playerBall = Ball.fromPosVel( v(1e-5,1e-5), v(5e-3,0) )
+var playerBall = Ball.fromPosVel( v(1e-5,1e-5), v(5e-5,0) )
 
 var aimGeo = null
 var aimArrowSeg = null
@@ -57,6 +57,7 @@ var aimClockwise = false
 var aimBall = null
 
 var debugPoints = []
+var debugEuclidSegs = []
 
 var all_balls = []
 

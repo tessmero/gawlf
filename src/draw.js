@@ -11,10 +11,19 @@ function drawp(p,color){
 }
 
 function drawc(p,r,color){
-    ctx.strokeStyle = 'black'
+    ctx.strokeStyle = color
     ctx.lineWidth = .001
     ctx.beginPath()
     ctx.arc(p.x,p.y,r,0,Math.PI*2)
+    ctx.stroke()
+}
+
+function drawl(a,b,color){
+    ctx.strokeStyle = color
+    ctx.lineWidth = .001
+    ctx.beginPath()
+    ctx.moveTo(a.x,a.y)
+    ctx.lineTo(b.x,b.y)
     ctx.stroke()
 }
     
@@ -45,7 +54,7 @@ function draw(fps, t) {
     drawc(center,crad,'black')
     
     //walls
-    ctx.lineWidth = .001
+    ctx.lineWidth = .002
     ctx.strokeStyle = 'black'
     all_walls.forEach(w => {
         //ctx.strokeStyle = w.intersect(aimSeg) ? 'red' : 'black'
@@ -59,10 +68,6 @@ function draw(fps, t) {
     playerBall.draw(ctx)
     
     // aiming cursor
-    ctx.strokeStyle = 'purple'
-    ctx.fillStyle = 'purple'
-    ctx.lineWidth = .001
-    if( aimGeo ) aimGeo.draw(ctx)
     ctx.lineWidth = .005
     //aimSeg.draw(ctx)
     if( aimGeo ) drawAimArrow()
@@ -74,6 +79,7 @@ function draw(fps, t) {
     //yLats.forEach( geo => drawc(...geo,'black') )
     
     debugPoints.forEach(p => drawp(p,'red'))
+    debugEuclidSegs.forEach(abc => drawl(...abc))
     
     
     // Draw FPS on the screen
@@ -105,12 +111,29 @@ function draw(fps, t) {
 
 function drawAimArrow(){
     
+    if( Math.abs(playerBall.speed) > 1e-4 ){
+        return
+    }
+    
+    ctx.strokeStyle = 'black'
+    ctx.lineWidth = .001
+    //if( aimGeo ) aimGeo.draw(ctx)
+    
     if( aimArrowSeg ){
-        var testseg = aimBall.nextIntersection()
-        if( testseg ){
-            ctx.strokeStyle = 'orange'
-            ctx.lineWidth = .06
-            testseg.draw(ctx)
+        ctx.strokeStyle = 'orange'
+        ctx.lineWidth = .02
+        var b = null
+        for( var i = 0 ; i < 2 ; i++ ){
+            if( b == null ){
+                b = aimBall
+            } else {
+                b = b.getNextBall()
+            }
+            var laserSeg = b.getNextIntersection(debug=i>0)
+            if( !laserSeg ){
+                break
+            }
+            laserSeg.draw(ctx)
         }
     }
     
@@ -147,7 +170,6 @@ function drawAimArrow(){
     ctx.strokeStyle = 'black'
     ctx.lineWidth = .002
     for( var i = 0 ; i < verts.length ; i++ ){
-        console.log(`arrow segment ${i}`)
         GeoSegment.betweenPoints( verts[i], verts[(i+1)%verts.length] ).draw(ctx)
     }
 }

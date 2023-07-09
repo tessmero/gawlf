@@ -29,25 +29,35 @@ class Ball {
     
     // get path from current pos to next obstacle
     // return null if no obstacles
-    nextIntersection(){
+    getNextIntersection(debug=false){
+        
+        if( this.nextInt ){
+            return this.nextInt
+        }
         
         var start = this.geo.center.add( Vector.polar( this.angle, this.geo.radius) )
         var end = this.geo.center.add( Vector.polar( this.angle+.9*pi*Math.sign(this.speed), this.geo.radius) )
         var seg = GeoSegment.betweenPoints( start, end )
         
         
+        
         var wints = []
         all_walls.forEach(w => {
             let wint = seg.intersect(w)
+            
+            
             if( wint ){
+                if(debug) debugPoints.push(wint)
                 let cw = isClockwise( start, wint, this.geo.center )
                 if( cw != aimClockwise ){
                     return
                 }
-                
+                wint.wa = wint.sub(w.center).getAngle()
                 wints.push(wint)
             }     
         })
+        
+        if(debug) return seg
         
         if( wints.length == 0 ){
             return null
@@ -63,10 +73,44 @@ class Ball {
             return b.da - a.da
         });
         
-        
+        this.targetAngle = wints[0].a
         var start = this.geo.center.add( Vector.polar( this.angle, this.geo.radius) )
-        var end = this.geo.center.add( Vector.polar( wints[0].a, this.geo.radius) )
-        return GeoSegment.betweenPoints(start, end)
+        var end = this.geo.center.add( Vector.polar( this.targetAngle, this.geo.radius) )
+        var cw = isClockwise( this.geo.center, start, end )
+        
+        this.nextInt = GeoSegment.betweenPoints(start, end)
+        this.nextInt.a = wints[0].a + (cw ? -pio2 : pio2 )
+        this.nextInt.wa = wints[0].wa
+        return this.nextInt
+    }
+    
+    // get ball instance to replace this on the next bounce
+    // return null if no obstacles in path
+    getNextBall(){
+        var nextInt = this.getNextIntersection()
+        if( !nextInt ){
+            return null
+        }
+        
+        if( this.nextBall ){
+            return this.nextBall
+        }
+        
+        //compute trajectory after bounce
+        var a = nextInt.q
+        var angle = nextInt.a
+        var wangle = nextInt.wa + pio2
+        
+        var params = this._bounce(a,angle,wangle)
+        var nextBall = new Ball( ...params )
+        nextBall.updatePos()
+        
+        //var dt = 10
+        //var da = nextBall.angularVel * dt
+        //nextBall.angle += da
+        
+        this.nextBall = nextBall
+        return this.nextBall
     }
     
     updatePos(){
@@ -91,7 +135,7 @@ class Ball {
         all_walls.every(w => {
             let wint = seg.intersect(w)
             if( wint ){
-                this.bounce(w,wint,dt,da)
+                this.bounce(w,wint,da)
                 return false
             }               
             return true
@@ -104,26 +148,36 @@ class Ball {
     }
     
     // used in update
-    bounce(w,wint,dt,da){
+    bounce(w,wint,da){
         
-        // compute euclidian movement angle after bounce
         var nextPos = this.geo.center.add(Vector.polar( this.angle+da, this.geo.radius ) )
         var d = nextPos.sub(this.pos)
-        var angle = d.getAngle()
-        var wangle = wint.sub(w.center).getAngle() + Math.PI/2
-        var newAngle = 2*wangle - angle
-        
-        // change trajectory
         var a = this.pos
-        var b = this.pos.add(Vector.polar(newAngle,10e-4))
-        this.geo = Geodesic.withPoints(a,b)
-        this.angle = a.sub(this.geo.center).getAngle()
-        this.speed = Math.abs(this.speed)
-        if( isClockwise( a, b, this.geo.center ) ){
-            this.speed *= -1
-        }
-        this.speed *= (1.0-bounceLoss)
+        var angle = d.getAngle()
+        var wangle = wint.sub(w.center).getAngle() + pio2
+        var params = this._bounce(a,angle,wangle)
+        this.geo = params[0]
+        this.angle = params[1]
+        this.speed = params[2]
         this.updatePos()
+    }
+    
+    _bounce(a,angle,wangle){
+        var newAngle = 2*wangle - angle
+        var b = a.add(Vector.polar(newAngle,10e-4))
+        var geo = Geodesic.withPoints(a,b)
+        var gangle = a.sub(geo.center).getAngle()
+        var speed = Math.abs(this.speed)
+        if( isClockwise( a, b, geo.center ) ){
+            speed *= -1
+        }
+        speed *= (1.0-bounceLoss)
+        
+        debugEuclidSegs.push([a,a.add(Vector.polar(angle,1e-1)),'green'])
+        debugEuclidSegs.push([a,a.add(Vector.polar(wangle,1e-1)),'red'])
+        debugEuclidSegs.push([a,a.add(Vector.polar(newAngle,1e-1)),'blue'])
+        
+        return [geo,gangle,speed]
     }
     
     draw(g){

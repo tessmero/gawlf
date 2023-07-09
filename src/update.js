@@ -16,6 +16,7 @@ function fitToContainer(){
 
 function update(dt) {
     debugPoints = []
+    debugEuclidSegs = []
     fitToContainer()
     
     all_balls.forEach( b => b.update(dt, all_walls) )
