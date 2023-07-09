@@ -39,7 +39,7 @@ class Ball {
         var end = this.geo.center.add( Vector.polar( this.angle+.9*pi*Math.sign(this.speed), this.geo.radius) )
         var seg = GeoSegment.betweenPoints( start, end )
         
-        
+        var cw = isClockwise( start,end, seg.center )
         
         var wints = []
         all_walls.forEach(w => {
@@ -48,8 +48,7 @@ class Ball {
             
             if( wint ){
                 if(debug) debugPoints.push(wint)
-                let cw = isClockwise( start, wint, this.geo.center )
-                if( cw != aimClockwise ){
+                if( cw != isClockwise( start, wint, this.geo.center ) ){
                     return
                 }
                 wint.wa = wint.sub(w.center).getAngle()
@@ -105,9 +104,9 @@ class Ball {
         var nextBall = new Ball( ...params )
         nextBall.updatePos()
         
-        //var dt = 10
-        //var da = nextBall.angularVel * dt
-        //nextBall.angle += da
+        var dt = 10
+        var da = nextBall.angularVel * dt
+        nextBall.angle += da
         
         this.nextBall = nextBall
         return this.nextBall
@@ -164,7 +163,7 @@ class Ball {
     
     _bounce(a,angle,wangle){
         var newAngle = 2*wangle - angle
-        var b = a.add(Vector.polar(newAngle,10e-4))
+        var b = a.add(Vector.polar(newAngle,1e-3))
         var geo = Geodesic.withPoints(a,b)
         var gangle = a.sub(geo.center).getAngle()
         var speed = Math.abs(this.speed)
@@ -173,9 +172,9 @@ class Ball {
         }
         speed *= (1.0-bounceLoss)
         
-        debugEuclidSegs.push([a,a.add(Vector.polar(angle,1e-1)),'green'])
-        debugEuclidSegs.push([a,a.add(Vector.polar(wangle,1e-1)),'red'])
-        debugEuclidSegs.push([a,a.add(Vector.polar(newAngle,1e-1)),'blue'])
+        //debugEuclidSegs.push([a,a.add(Vector.polar(angle,1e-1)),'green'])
+        //debugEuclidSegs.push([a,a.add(Vector.polar(wangle,1e-1)),'red'])
+        //debugEuclidSegs.push([a,a.add(Vector.polar(newAngle,1e-1)),'blue'])
         
         return [geo,gangle,speed]
     }

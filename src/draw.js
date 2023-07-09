@@ -117,7 +117,7 @@ function drawAimArrow(){
     
     ctx.strokeStyle = 'black'
     ctx.lineWidth = .001
-    //if( aimGeo ) aimGeo.draw(ctx)
+    if( aimGeo ) aimGeo.draw(ctx)
     
     if( aimArrowSeg ){
         ctx.strokeStyle = 'orange'
@@ -129,7 +129,7 @@ function drawAimArrow(){
             } else {
                 b = b.getNextBall()
             }
-            var laserSeg = b.getNextIntersection(debug=i>0)
+            var laserSeg = b.getNextIntersection()
             if( !laserSeg ){
                 break
             }
