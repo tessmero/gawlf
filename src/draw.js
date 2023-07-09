@@ -56,26 +56,39 @@ function draw(fps, t) {
     
     
     // draw edge circle
-    ctx.lineWidth = .004
+    ctx.lineWidth = .006
     drawc(center,crad,'black')
     
     //walls
-    ctx.lineWidth = .002
+    ctx.lineWidth = .004
     ctx.strokeStyle = 'black'
-    all_walls.forEach(w => {
+    allWalls.forEach(w => {
         //ctx.strokeStyle = w.intersect(aimSeg) ? 'red' : 'black'
         w.draw(ctx)
     })
+    
+    // target
+    drawc( targetPos, targetEuclidRad, 'black', fill = true )
     
     //balls
     ctx.fillStyle = 'blue'
     ctx.strokeStyle = 'blue'
     all_balls.forEach(b => b.draw(ctx) )
     playerBall.draw(ctx)
+    
+    
     // draw reset button
     ctx.lineWidth = .004
     var hoverReset = mouseInResetButton()
-    drawc( ...resetButton, 'red', fill=hoverReset)
+    drawc( ...resetButton, '#FAA', fill=hoverReset)
+    drawc( ...resetButton, 'red')
+    ctx.font = ".05px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = "black";
+    var x = .4
+    var y = .4
+    ctx.fillText("RESET", resetButton[0].x, resetButton[0].y+.01 );
     if( hoverReset ){
         return
     }
@@ -83,7 +96,7 @@ function draw(fps, t) {
     // aiming cursor
     ctx.lineWidth = .005
     //aimSeg.draw(ctx)
-    if( aimGeo ) drawAimArrow()
+    if( aimGeo ) drawAimIndicator()
         
     //var gints = circle_intersections(...geo, center, crad)
     //gints.forEach( p => drawp( p, 'purple' ) )
@@ -92,7 +105,7 @@ function draw(fps, t) {
     //xLats.forEach( geo => drawc(...geo,'black') )
     //yLats.forEach( geo => drawc(...geo,'black') )
     
-    //debugPoints.forEach(p => drawp(p,'red'))
+    debugPoints.forEach(p => drawp(p,'red'))
     //debugEuclidSegs.forEach(abc => drawl(...abc))
     
     
@@ -124,7 +137,7 @@ function draw(fps, t) {
     //ctx.fillText(`virtual pos: ${mousePos.x}, ${mousePos.y}`, x, y);
 }
 
-function drawAimArrow(){
+function drawAimIndicator(){
     
     if( !ballIsHittable() ){
         return
@@ -135,8 +148,9 @@ function drawAimArrow(){
     if( aimGeo ) aimGeo.draw(ctx)
     
     if( aimArrowSeg ){
-        ctx.strokeStyle = 'orange'
-        ctx.lineWidth = .02
+        ctx.strokeStyle = '#AAF'
+        ctx.lineWidth = .01
+        var dash = .1*aimStrength
         var b = null
         for( var i = 0 ; i < 2 ; i++ ){
             if( b == null ){
@@ -182,8 +196,9 @@ function drawAimArrow(){
         aimTailPos.sub(tailNorm),
     ]
     
-    ctx.strokeStyle = 'black'
-    ctx.lineWidth = .002
+    ctx.strokeStyle = 'blue'
+    ctx.lineWidth = .008
+    ctx.lineCap = 'round'
     for( var i = 0 ; i < verts.length ; i++ ){
         GeoSegment.betweenPoints( verts[i], verts[(i+1)%verts.length] ).draw(ctx)
     }

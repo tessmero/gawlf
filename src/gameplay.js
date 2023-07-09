@@ -1,4 +1,5 @@
 
+
 // return true if the ball is
 // not moving much and is ready to be hit by the player
 function ballIsHittable(){
@@ -13,12 +14,22 @@ function playerHitBall(){
 }
 
 // player clicked red button
-// reset ball
-function playerHitReset(){
-    playerBall = Ball.fromPosVel( v(1e-5,1e-5), v(5e-5,0) )
+// also called on game start and level advancement
+function resetLevel(){
+    playerBall = Ball.fromPosVel(startPos,v(2e-5,1e-5))
 }
 
-// 
+// called when ball is contained in target
 function ballHitTarget(){
-        
+    advanceLevel()
+}
+
+// called on game start
+// called after hitting target
+function advanceLevel(){
+    currentLevel = getNextLevel()
+    allWalls = currentLevel.getObstacles()
+    startPos = currentLevel.getStartPos()
+    targetPos = currentLevel.getTargetPos()
+    resetLevel()
 }

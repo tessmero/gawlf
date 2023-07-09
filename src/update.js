@@ -19,10 +19,19 @@ function update(dt) {
     debugEuclidSegs = []
     fitToContainer()
     
-    all_balls.forEach( b => b.update(dt, all_walls) )
-    playerBall.update(dt,all_walls)
+    all_balls.forEach( b => b.update(dt) )
+    playerBall.update(dt)
     
     updateAim()
+    
+    playerEuclidRad = playerBallRadius*getDistScaleFactor(playerBall.pos)
+    targetEuclidRad = targetRadius*getDistScaleFactor(targetPos)
+    
+    // check if target was hit
+    var d = playerBall.pos.sub(targetPos).getMagnitude()
+    if( d < targetEuclidRad ){
+        ballHitTarget()
+    }
 }
 
 function updateAim(){

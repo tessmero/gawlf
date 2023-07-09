@@ -37,7 +37,7 @@ function touchMove(event){
 function touchEnd(event){
     isMobileDevice = true
     if( mouseInResetButton() ){
-        playerHitReset()
+        resetLevel()
     } else {
         playerHitBall()
     }
@@ -53,7 +53,7 @@ function mouseClick(event){
     updateMousePos(event)
     
     if( mouseInResetButton() ){
-        playerHitReset()
+        resetLevel()
     } else {
         playerHitBall()
     }

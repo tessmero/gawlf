@@ -9,7 +9,6 @@ class GeoSegment extends Geodesic{
         this.q = q || center.add(Vector.polar(a2,radius))
         
         if( Math.abs(cleanAngle(a1-a2)) < 10e-4 ){
-            console.log('decided segment is straight',a1,a2,Math.abs(cleanAngle(a1-a2)))
             this.straight = true
         }
     }

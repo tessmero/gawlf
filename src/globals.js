@@ -34,20 +34,20 @@ for( var x = dx ; x < crad ; x += dx ){
 var bounceLoss = 1e-1 // fraction of speed lost on bounce
 var friction = 1e-3 // fraction of speed lost per ms
 
-// game objects
-var r = .84
-var n = Math.floor( Math.random()*6+4 )
-var da = twopi / n
-var corners = []
-for( let i = 0 ; i < (n+1) ; i++ ){
-    corners.push( Vector.polar( da*i+.1, r ) )
-}
-var all_walls = []
-for( let i = 0 ; i < n ; i++ ) {
-    all_walls.push( GeoSegment.betweenPoints( corners[i], corners[i+1] ) ) 
-}
+playerBallRadius = .05 //hyperbolic
+targetRadius = .1 
+playerEuclidRad = 0 // euclidian computed on update
+targetEuclidRad = 0 
 
-var playerBall = Ball.fromPosVel( v(1e-5,1e-5), v(5e-5,0) )
+// game objects
+var currentLevel = null
+var startPos = null
+var targetPos = null
+var allWalls = null
+var playerBall = null
+advanceLevel()
+
+
 
 var aimGeo = null
 var aimArrowSeg = null

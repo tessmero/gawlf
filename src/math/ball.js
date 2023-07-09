@@ -16,7 +16,7 @@ class Ball {
     // construct ball with given position and velocity
     static fromPosVel( pos, vel ){
         var a = pos
-        var b = pos.add(Vector.polar(vel.getAngle(),10e-4))
+        var b = pos.add(Vector.polar(vel.getAngle(),1e-2))
         var geo = Geodesic.withPoints(a,b)
         var angle = a.sub(geo.center).getAngle()
         var speed = vel.getMagnitude() * getDistScaleFactor(pos)
@@ -42,7 +42,7 @@ class Ball {
         var cw = isClockwise( start,end, seg.center )
         
         var wints = []
-        all_walls.forEach(w => {
+        allWalls.forEach(w => {
             let wint = seg.intersect(w)
             
             
@@ -53,6 +53,7 @@ class Ball {
                 }
                 wint.wa = wint.sub(w.center).getAngle()
                 wints.push(wint)
+                //debugPoints.push(wint)
             }     
         })
         
@@ -64,12 +65,12 @@ class Ball {
         
         wints.forEach(wint => {
             wint.a = wint.sub(this.geo.center).getAngle()
-            wint.da = this.angle-wint.a
+            wint.dist = wint.sub(start).getMagnitude()
         })
         
                 
         wints.sort(function(a, b) {
-            return b.da - a.da
+            return a.dist-b.dist
         });
         
         this.targetAngle = wints[0].a
@@ -131,7 +132,7 @@ class Ball {
         // check for intersections with walls
         var bounced = false
         var seg = new GeoSegment( this.geo.center, this.geo.radius, this.angle, this.angle+da )
-        all_walls.every(w => {
+        allWalls.every(w => {
             let wint = seg.intersect(w)
             if( wint ){
                 this.bounce(w,wint,da)
@@ -182,7 +183,7 @@ class Ball {
     draw(g){
         //this.geo.draw(g)
         g.beginPath()
-        g.arc( this.pos.x, this.pos.y, .05*this.ds, 0, Math.PI*2 )
+        g.arc( this.pos.x, this.pos.y, playerEuclidRad, 0, Math.PI*2 )
         g.fill()
     }
 }
