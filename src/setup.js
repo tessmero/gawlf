@@ -3,8 +3,11 @@
 // Initialize the game
 function init() {
     canvas = document.getElementById("gameCanvas");
-    canvas.addEventListener("mousemove", updateMousePos);
-    canvas.addEventListener("click", mouseClicked);
+    canvas.addEventListener("touchstart", touchStart);
+    canvas.addEventListener("touchmove", touchMove);
+    canvas.addEventListener("touchend", touchEnd);
+    canvas.addEventListener("mousemove", mouseMove);
+    canvas.addEventListener("click", mouseClick);
     ctx = canvas.getContext("2d");   
     requestAnimationFrame(gameLoop);
 }

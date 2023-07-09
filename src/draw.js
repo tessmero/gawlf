@@ -44,12 +44,11 @@ function draw(fps, t) {
     // draw edge circle
     drawc(center,crad,'black')
     
-    
-    
     //walls
     ctx.lineWidth = .001
     ctx.strokeStyle = 'black'
     all_walls.forEach(w => {
+        //ctx.strokeStyle = w.intersect(aimSeg) ? 'red' : 'black'
         w.draw(ctx)
     })
     
@@ -63,16 +62,18 @@ function draw(fps, t) {
     ctx.strokeStyle = 'purple'
     ctx.fillStyle = 'purple'
     ctx.lineWidth = .001
-    aimGeo.draw(ctx)
+    if( aimGeo ) aimGeo.draw(ctx)
     ctx.lineWidth = .005
     //aimSeg.draw(ctx)
-    drawAimArrow()
+    if( aimGeo ) drawAimArrow()
     //var gints = circle_intersections(...geo, center, crad)
     //gints.forEach( p => drawp( p, 'purple' ) )
     
     // draw lattice
     //xLats.forEach( geo => drawc(...geo,'black') )
     //yLats.forEach( geo => drawc(...geo,'black') )
+    
+    debugPoints.forEach(p => drawp(p,'red'))
     
     
     // Draw FPS on the screen
@@ -103,33 +104,50 @@ function draw(fps, t) {
 }
 
 function drawAimArrow(){
-    var tailThickness = .4*getDistScaleFactor(aimTailPos)
-    var tailNorm = Vector.polar( aimSeg.a1, tailThickness/2 )
     
-    var tipThickness = .4*getDistScaleFactor(playerBall.pos)
-    var tipNorm = Vector.polar( aimSeg.a2, tipThickness/2 )
+    if( aimArrowSeg ){
+        var testseg = aimBall.nextIntersection()
+        if( testseg ){
+            ctx.strokeStyle = 'orange'
+            ctx.lineWidth = .06
+            testseg.draw(ctx)
+        }
+    }
+    
+    var basethickness = aimStrength*.5
+    var headBasePos = aimArrowSeg.getMidPoint(.7)
+    var tailPos = aimTailPos
+    var tipPos = aimArrowSeg.getMidPoint(.9)
+    
+    var headBaseAngle = headBasePos.sub(aimGeo.center).getAngle()
+    var tailAngle = tailPos.sub(aimGeo.center).getAngle()
+    if( false & aimClockwise ){
+        var t = headBaseAngle
+        headBaseAngle = tailAngle
+        tailAngle = t
+    }
+    
+    var tailThickness = basethickness*getDistScaleFactor(aimTailPos)
+    var tailNorm = Vector.polar( tailAngle, tailThickness/2 )
+    
+    var headBaseThickness = basethickness*getDistScaleFactor(headBasePos)
+    var headBaseNorm = Vector.polar( headBaseAngle, headBaseThickness/2 )
+    var headFlairNorm = headBaseNorm.mul(2)
     
     var verts = [
-        playerBall.pos.add(tipNorm),
-        playerBall.pos.sub(tipNorm),
+        aimTailPos.add(tailNorm),
+        headBasePos.add(headBaseNorm),
+        headBasePos.add(headFlairNorm),
+        tipPos,
+        headBasePos.sub(headFlairNorm),
+        headBasePos.sub(headBaseNorm),
         aimTailPos.sub(tailNorm),
-        aimTailPos.add(tailNorm)
     ]
     
+    ctx.strokeStyle = 'black'
+    ctx.lineWidth = .002
     for( var i = 0 ; i < verts.length ; i++ ){
+        console.log(`arrow segment ${i}`)
         GeoSegment.betweenPoints( verts[i], verts[(i+1)%verts.length] ).draw(ctx)
     }
-}
-
-
-function drawArrow(a,b) {
-  var headlen = .1; 
-  var angle = b.sub(a).getAngle()
-  ctx.beginPath()
-  ctx.moveTo(a.x, a.y);
-  ctx.lineTo(b.x, b.y);
-  ctx.lineTo(b.x - headlen * Math.cos(angle - pi/6), b.y - headlen * Math.sin(angle - pi/6));
-  ctx.moveTo(b.x, b.y);
-  ctx.lineTo(b.x - headlen * Math.cos(angle + pi/6), b.y - headlen * Math.sin(angle + pi/6));
-  ctx.fill()
 }

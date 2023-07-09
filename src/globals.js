@@ -47,11 +47,17 @@ for( let i = 0 ; i < n ; i++ ) {
     all_walls.push( GeoSegment.betweenPoints( corners[i], corners[i+1] ) ) 
 }
 
-var playerBall = Ball.fromEuclidian( v(.1,.1), v(4e-3,0) )
+var playerBall = Ball.fromPosVel( v(1e-5,1e-5), v(5e-3,0) )
+
 var aimGeo = null
-var aimSeg = null
+var aimArrowSeg = null
 var aimTailPos = null
 var aimStrength = 0 // ball (hyperbolic) speed multiplier
+var aimClockwise = false
+var aimBall = null
+
+var debugPoints = []
+
 var all_balls = []
 
 //geo = new Geodesic( new Vector(,),  )
@@ -77,7 +83,7 @@ for( var i = 0 ; i < 10 ; i++ ){
 
 
 // mouse
-var canvasMousePos = new Vector(0,0) //pixels on canvas
-var mousePos = new Vector(0,0) //internal units
-var secondPos = new Vector(0,0)
+var isMobileDevice = false
+var canvasMousePos = null //pixels on canvas
+var mousePos = null //internal units
 

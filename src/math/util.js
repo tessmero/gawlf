@@ -115,8 +115,8 @@ function mb(a,b){
 }
 
 // euclidean midpoint
-function midpoint(a,b){
-    return a.add(b).mul(.5)
+function midpoint(a,b,r=.5){
+    return a.mul(1.0-r).add(b.mul(r))
 }
 
 function isClockwise(p, q, r) {

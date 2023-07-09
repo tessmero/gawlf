@@ -14,7 +14,7 @@ class Ball {
     }
     
     // construct ball with given position and velocity
-    static fromEuclidian( pos, vel ){
+    static fromPosVel( pos, vel ){
         var a = pos
         var b = pos.add(Vector.polar(vel.getAngle(),10e-4))
         var geo = Geodesic.withPoints(a,b)
@@ -25,6 +25,48 @@ class Ball {
         }
         speed *= (1.0-bounceLoss)
         return new Ball( geo, angle, speed )
+    }
+    
+    // get path from current pos to next obstacle
+    // return null if no obstacles
+    nextIntersection(){
+        
+        var start = this.geo.center.add( Vector.polar( this.angle, this.geo.radius) )
+        var end = this.geo.center.add( Vector.polar( this.angle+.9*pi*Math.sign(this.speed), this.geo.radius) )
+        var seg = GeoSegment.betweenPoints( start, end )
+        
+        
+        var wints = []
+        all_walls.forEach(w => {
+            let wint = seg.intersect(w)
+            if( wint ){
+                let cw = isClockwise( start, wint, this.geo.center )
+                if( cw != aimClockwise ){
+                    return
+                }
+                
+                wints.push(wint)
+            }     
+        })
+        
+        if( wints.length == 0 ){
+            return null
+        }
+        
+        wints.forEach(wint => {
+            wint.a = wint.sub(this.geo.center).getAngle()
+            wint.da = this.angle-wint.a
+        })
+        
+                
+        wints.sort(function(a, b) {
+            return b.da - a.da
+        });
+        
+        
+        var start = this.geo.center.add( Vector.polar( this.angle, this.geo.radius) )
+        var end = this.geo.center.add( Vector.polar( wints[0].a, this.geo.radius) )
+        return GeoSegment.betweenPoints(start, end)
     }
     
     updatePos(){
@@ -38,7 +80,7 @@ class Ball {
         this.angularVel = this.speed*this.ds / this.geo.radius
     }
     
-    update(dt, all_walls){
+    update(dt){
         this.updatePos()
         var da = this.angularVel * dt
         var prad = this.pos.getMagnitude()

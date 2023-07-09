@@ -12,11 +12,34 @@ function updateMousePos(event){
         virtualMouseX = (canvasMousePos.x-canvasOffsetX)/canvasScale, 
         virtualMouseY = (canvasMousePos.y-canvasOffsetY)/canvasScale
     )
+    
+    updateAim()
 }
 
-function mouseClicked(event){    
-    //secondPos = mousePos.copy()
+// touch device
+function touchStart(event){
+    isMobileDevice = true
+    updateMousePos(event.touches[0])
+    
+}
+function touchMove(event){
+    isMobileDevice = true
+    updateMousePos(event.touches[0])
+}
+function touchEnd(event){
+    isMobileDevice = true
+    playerHitBall()
+}
 
+function mouseMove(event){
+    if(isMobileDevice) return
+    
+    updateMousePos(event)
+}
+
+function mouseClick(event){   
+    if(isMobileDevice) return
+    
     updateMousePos(event)
     playerHitBall()
 }

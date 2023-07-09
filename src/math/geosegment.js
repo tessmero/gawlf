@@ -1,10 +1,16 @@
 // a segment of a geodesic
 
 class GeoSegment extends Geodesic{
-    constructor(center,radius,a1,a2){
+    constructor(center,radius,a1,a2,p=null,q=null){
         super(center,radius)
         this.a1 = a1
         this.a2 = a2
+        this.p = p || center.add(Vector.polar(a1,radius))
+        this.q = q || center.add(Vector.polar(a2,radius))
+        
+        if( Math.abs(cleanAngle(a1-a2)) < 10e-4 ){
+            this.straight = true
+        }
     }
     
     // construct segment connecting points p and q
@@ -22,7 +28,13 @@ class GeoSegment extends Geodesic{
             a1 = t
         }
         
-        return new GeoSegment( c, r, a1, a2 )
+        return new GeoSegment( c, r, a1, a2, p, q )
+    }
+    
+    // get point on segment
+    getMidPoint(r=.5){
+        var a = midpoint( this.p, this.q, r ).sub( this.center ).getAngle()
+        return this.center.add( Vector.polar( a, this.radius ) ) 
     }
     
     // assuming the given point is on our geodesic,
@@ -39,14 +51,21 @@ class GeoSegment extends Geodesic{
     // or null if they do not intersect
     intersect(o){
         var cints = circle_intersections( this.center, this.radius, o.center, o.radius )
-        return cints.find( ci => this.containsPoint(ci) & o.containsPoint(ci) )
+        return cints.find( ci => ((ci.getMagnitude() < crad) && this.containsPoint(ci) && o.containsPoint(ci)) )
     }
     
     draw(g){
         g.beginPath()
-        g.arc(
-            this.center.x, this.center.y, 
-            this.radius, this.a1, this.a2)
+        
+        if( this.straight ){
+            g.moveTo(this.p.x,this.p.y)
+            g.lineTo(this.q.x,this.q.y)
+            
+        } else {
+            g.arc(this.center.x, this.center.y, 
+                this.radius, this.a1, this.a2)
+        }
+        
         g.stroke()
     }
 }

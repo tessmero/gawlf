@@ -15,25 +15,39 @@ function fitToContainer(){
 }
 
 function update(dt) {
+    debugPoints = []
     fitToContainer()
     
     all_balls.forEach( b => b.update(dt, all_walls) )
     playerBall.update(dt,all_walls)
     
-    //var aimAngle = playerBall.pos.sub(mousePos).getAngle()
-    //aimGeo = Geodesic.withPoints(playerBall.pos.sub(Vector.polar(aimAngle,5e-10)), playerBall.pos)
-    aimGeo = Geodesic.withPoints(mousePos,playerBall.pos)
+    updateAim()
+}
+
+function updateAim(){
+    if( !mousePos ){
+        return
+    }
     
+    aimGeo = Geodesic.withPoints(mousePos,playerBall.pos)
     var angle = playerBall.pos.sub(aimGeo.center).getAngle()
     var tailHLen = 1 //hyperbolic
     var tailLen = tailHLen * getDistScaleFactor(playerBall.pos)//euclidian
     var da = tailLen / aimGeo.radius
     var mouseDa = Math.abs(cleanAngle(mousePos.sub(aimGeo.center).getAngle() - angle))
     var da = Math.min( da, mouseDa )
-    if( isClockwise(playerBall.pos, aimGeo.center, mousePos ) ){
+    aimClockwise = isClockwise(playerBall.pos, aimGeo.center, mousePos )
+    if( aimClockwise ){
         da *= -1
     }
-    aimStrength = da
+    aimStrength = da*aimGeo.radius
     aimTailPos = aimGeo.center.add( Vector.polar( angle-da, aimGeo.radius ) )
-    aimSeg = GeoSegment.betweenPoints(aimTailPos, playerBall.pos)
+    aimArrowSeg = GeoSegment.betweenPoints(aimTailPos, playerBall.pos)
+
+    angle = playerBall.pos.sub(aimGeo.center).getAngle()
+    var speed = 1e-2 * Math.abs(aimStrength)
+    if( isClockwise(playerBall.pos, aimGeo.center, mousePos ) ){
+        speed *= -1
+    }
+    aimBall = new Ball( aimGeo, angle, speed )
 }
