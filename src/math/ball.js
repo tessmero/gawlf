@@ -104,7 +104,7 @@ class Ball {
         var nextBall = new Ball( ...params )
         nextBall.updatePos()
         
-        var dt = 10
+        var dt = 1
         var da = nextBall.angularVel * dt
         nextBall.angle += da
         

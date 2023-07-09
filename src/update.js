@@ -46,7 +46,7 @@ function updateAim(){
     aimArrowSeg = GeoSegment.betweenPoints(aimTailPos, playerBall.pos)
 
     angle = playerBall.pos.sub(aimGeo.center).getAngle()
-    var speed = 1e-2 * Math.abs(aimStrength)
+    var speed = 2e-2 * Math.abs(aimStrength)
     if( isClockwise(playerBall.pos, aimGeo.center, mousePos ) ){
         speed *= -1
     }

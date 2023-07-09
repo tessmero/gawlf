@@ -10,12 +10,17 @@ function drawp(p,color){
     ctx.fill()
 }
 
-function drawc(p,r,color){
+function drawc(p,r,color,fill=false){
     ctx.strokeStyle = color
-    ctx.lineWidth = .001
     ctx.beginPath()
     ctx.arc(p.x,p.y,r,0,Math.PI*2)
     ctx.stroke()
+    if( fill ){
+        ctx.fillStyle = color
+        ctx.beginPath()
+        ctx.arc(p.x,p.y,r,0,Math.PI*2)
+        ctx.fill()
+    }
 }
 
 function drawl(a,b,color){
@@ -51,6 +56,7 @@ function draw(fps, t) {
     
     
     // draw edge circle
+    ctx.lineWidth = .004
     drawc(center,crad,'black')
     
     //walls
@@ -66,11 +72,19 @@ function draw(fps, t) {
     ctx.strokeStyle = 'blue'
     all_balls.forEach(b => b.draw(ctx) )
     playerBall.draw(ctx)
+    // draw reset button
+    ctx.lineWidth = .004
+    var hoverReset = mouseInResetButton()
+    drawc( ...resetButton, 'red', fill=hoverReset)
+    if( hoverReset ){
+        return
+    }
     
     // aiming cursor
     ctx.lineWidth = .005
     //aimSeg.draw(ctx)
     if( aimGeo ) drawAimArrow()
+        
     //var gints = circle_intersections(...geo, center, crad)
     //gints.forEach( p => drawp( p, 'purple' ) )
     
@@ -78,8 +92,9 @@ function draw(fps, t) {
     //xLats.forEach( geo => drawc(...geo,'black') )
     //yLats.forEach( geo => drawc(...geo,'black') )
     
-    debugPoints.forEach(p => drawp(p,'red'))
-    debugEuclidSegs.forEach(abc => drawl(...abc))
+    //debugPoints.forEach(p => drawp(p,'red'))
+    //debugEuclidSegs.forEach(abc => drawl(...abc))
+    
     
     
     // Draw FPS on the screen
@@ -111,7 +126,7 @@ function draw(fps, t) {
 
 function drawAimArrow(){
     
-    if( Math.abs(playerBall.speed) > 1e-4 ){
+    if( !ballIsHittable() ){
         return
     }
     

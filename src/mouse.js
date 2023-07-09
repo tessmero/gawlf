@@ -16,6 +16,14 @@ function updateMousePos(event){
     updateAim()
 }
 
+
+function mouseInResetButton(){
+    if( !mousePos ){
+        return false
+    }
+    return mousePos.sub(resetButton[0]).getMagnitude() < resetButton[1]
+}
+
 // touch device
 function touchStart(event){
     isMobileDevice = true
@@ -28,18 +36,25 @@ function touchMove(event){
 }
 function touchEnd(event){
     isMobileDevice = true
-    playerHitBall()
+    if( mouseInResetButton() ){
+        playerHitReset()
+    } else {
+        playerHitBall()
+    }
 }
 
 function mouseMove(event){
     if(isMobileDevice) return
-    
     updateMousePos(event)
 }
 
 function mouseClick(event){   
     if(isMobileDevice) return
-    
     updateMousePos(event)
-    playerHitBall()
+    
+    if( mouseInResetButton() ){
+        playerHitReset()
+    } else {
+        playerHitBall()
+    }
 }
